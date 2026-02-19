@@ -16,3 +16,5 @@ go.work
 
 # Build output
 jlog
+build/
+dist/
