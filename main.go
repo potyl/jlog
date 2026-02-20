@@ -52,14 +52,37 @@ type options struct {
 
 func run() error {
 	opts := options{}
-	flag.StringVar(&opts.format, "format", ".message", "jq expression holding with the output format")
+	var showVersion bool
+	flag.StringVar(&opts.format, "format", ".message", "jq expression for the output format")
 	flag.StringVar(&opts.level, "level", "(.level_name // .level)", "jq expression to find the log level")
 	flag.StringVar(&opts.grep, "grep", "", "PCRE pattern to highlight matches in blue")
 	flag.BoolVar(&opts.ignoreCase, "i", false, "case-insensitive matching for --grep")
-	flag.Bool("version", false, "print version and exit")
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: jlog [OPTIONS] [FILE]\n\nOptions:\n")
+		flag.VisitAll(func(f *flag.Flag) {
+			prefix := "--"
+			if len(f.Name) == 1 {
+				prefix = "-"
+			}
+			typeName, usage := flag.UnquoteUsage(f)
+			if typeName != "" {
+				fmt.Fprintf(os.Stderr, "  %s%s %s\n", prefix, f.Name, typeName)
+			} else {
+				fmt.Fprintf(os.Stderr, "  %s%s\n", prefix, f.Name)
+			}
+			if f.DefValue != "" && f.DefValue != "false" {
+				fmt.Fprintf(os.Stderr, "        %s (default %q)\n", usage, f.DefValue)
+			} else {
+				fmt.Fprintf(os.Stderr, "        %s\n", usage)
+			}
+		})
+	}
+
 	flag.Parse()
 
-	if f := flag.Lookup("version"); f != nil && f.Value.String() == "true" {
+	if showVersion {
 		fmt.Println(version)
 		return nil
 	}
