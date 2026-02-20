@@ -52,8 +52,8 @@ type options struct {
 
 func run() error {
 	opts := options{}
-	flag.StringVar(&opts.format, "format", "", "jq expression holding with the output format")
-	flag.StringVar(&opts.level, "level", "", "jq expression to find the log level")
+	flag.StringVar(&opts.format, "format", ".message", "jq expression holding with the output format")
+	flag.StringVar(&opts.level, "level", "(.level_name // .level)", "jq expression to find the log level")
 	flag.StringVar(&opts.grep, "grep", "", "PCRE pattern to highlight matches in blue")
 	flag.BoolVar(&opts.ignoreCase, "i", false, "case-insensitive matching for --grep")
 	flag.Bool("version", false, "print version and exit")
@@ -100,25 +100,14 @@ func highlightMatches(output string, re *regexp2.Regexp, baseColor string) strin
 func processLines(reader io.Reader, opts options) error {
 	scanner := bufio.NewScanner(reader)
 
-	if opts.format == "" {
-		opts.format = ".message"
-	}
-
-	if opts.level == "" {
-		opts.level = "(.level_name // .level)"
-	}
-
 	formatQuery, err := gojq.Parse(opts.format)
 	if err != nil {
 		return fmt.Errorf("failed to parse format query: %w", err)
 	}
 
-	var levelQuery *gojq.Query
-	if opts.level != "" {
-		levelQuery, err = gojq.Parse(opts.level)
-		if err != nil {
-			return fmt.Errorf("failed to parse level query: %w", err)
-		}
+	levelQuery, err := gojq.Parse(opts.level)
+	if err != nil {
+		return fmt.Errorf("failed to parse level query: %w", err)
 	}
 
 	var grepRe *regexp2.Regexp
@@ -143,16 +132,14 @@ func processLines(reader io.Reader, opts options) error {
 		}
 
 		color := ""
-		if levelQuery != nil {
-			iter := levelQuery.Run(data)
-			if result, ok := iter.Next(); ok {
-				if str, ok := result.(string); ok {
-					color = levelColor(str)
-				}
+		iter := levelQuery.Run(data)
+		if result, ok := iter.Next(); ok {
+			if str, ok := result.(string); ok {
+				color = levelColor(str)
 			}
 		}
 
-		iter := formatQuery.Run(data)
+		iter = formatQuery.Run(data)
 		result, ok := iter.Next()
 
 		if !ok {
