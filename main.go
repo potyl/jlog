@@ -52,11 +52,12 @@ type options struct {
 
 func run() error {
 	opts := options{}
-	flag.StringVar(&opts.format, "format", ".message", "jq expression holding with the output format")
+	var showVersion bool
+	flag.StringVar(&opts.format, "format", ".message", "jq expression for the output format")
 	flag.StringVar(&opts.level, "level", "(.level_name // .level)", "jq expression to find the log level")
 	flag.StringVar(&opts.grep, "grep", "", "PCRE pattern to highlight matches in blue")
 	flag.BoolVar(&opts.ignoreCase, "i", false, "case-insensitive matching for --grep")
-	flag.Bool("version", false, "print version and exit")
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: jlog [OPTIONS] [FILE]\n\nOptions:\n")
@@ -81,7 +82,7 @@ func run() error {
 
 	flag.Parse()
 
-	if f := flag.Lookup("version"); f != nil && f.Value.String() == "true" {
+	if showVersion {
 		fmt.Println(version)
 		return nil
 	}
