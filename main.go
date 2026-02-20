@@ -57,6 +57,28 @@ func run() error {
 	flag.StringVar(&opts.grep, "grep", "", "PCRE pattern to highlight matches in blue")
 	flag.BoolVar(&opts.ignoreCase, "i", false, "case-insensitive matching for --grep")
 	flag.Bool("version", false, "print version and exit")
+
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: jlog [OPTIONS] [FILE]\n\nOptions:\n")
+		flag.VisitAll(func(f *flag.Flag) {
+			prefix := "--"
+			if len(f.Name) == 1 {
+				prefix = "-"
+			}
+			typeName, usage := flag.UnquoteUsage(f)
+			if typeName != "" {
+				fmt.Fprintf(os.Stderr, "  %s%s %s\n", prefix, f.Name, typeName)
+			} else {
+				fmt.Fprintf(os.Stderr, "  %s%s\n", prefix, f.Name)
+			}
+			if f.DefValue != "" && f.DefValue != "false" {
+				fmt.Fprintf(os.Stderr, "        %s (default %q)\n", usage, f.DefValue)
+			} else {
+				fmt.Fprintf(os.Stderr, "        %s\n", usage)
+			}
+		})
+	}
+
 	flag.Parse()
 
 	if f := flag.Lookup("version"); f != nil && f.Value.String() == "true" {
