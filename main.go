@@ -56,7 +56,13 @@ func run() error {
 	flag.StringVar(&opts.level, "level", "", "jq expression to find the log level")
 	flag.StringVar(&opts.grep, "grep", "", "PCRE pattern to highlight matches in blue")
 	flag.BoolVar(&opts.ignoreCase, "i", false, "case-insensitive matching for --grep")
+	flag.Bool("version", false, "print version and exit")
 	flag.Parse()
+
+	if f := flag.Lookup("version"); f != nil && f.Value.String() == "true" {
+		fmt.Println(version)
+		return nil
+	}
 
 	var reader io.Reader = os.Stdin
 
