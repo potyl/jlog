@@ -42,6 +42,7 @@ checksum:
 
 changelog:
   sort: asc
+  format: "{{slice .SHA 0 7}}: {{.Message}}"
   filters:
     exclude:
       - "^docs:"
