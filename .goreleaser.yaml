@@ -49,6 +49,7 @@ changelog:
   format: "{{.SHA}}: {{.Message}}"
   filters:
     exclude:
+      - "^ci:"
       - "^docs:"
       - "^test:"
       - "^chore:"
