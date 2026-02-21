@@ -9,8 +9,24 @@ defaults:
 
 jobs:
   checks:
-    name: Format / Vet / Build
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Format
+            run: |
+              unformatted=$(gofmt -l .)
+              if [[ -n "$unformatted" ]]; then
+                echo "Unformatted files:"
+                echo "$unformatted"
+                exit 1
+              fi
+          - name: Vet
+            run: go vet ./...
+          - name: Build
+            run: go build ./...
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -20,17 +36,6 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - name: Check formatting
+      - name: ${{ matrix.name }}
         run: |
-          unformatted=$(gofmt -l .)
-          if [[ -n "$unformatted" ]]; then
-            echo "Unformatted files:"
-            echo "$unformatted"
-            exit 1
-          fi
-
-      - name: Vet
-        run: go vet ./...
-
-      - name: Build
-        run: go build ./...
+          ${{ matrix.run }}
