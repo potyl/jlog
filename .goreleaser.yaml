@@ -40,9 +40,13 @@ archives:
 checksum:
   name_template: checksums.txt
 
+release:
+  mode: keep-existing
+
 changelog:
+  abbrev: 7
   sort: asc
-  format: "{{slice .SHA 0 7}}: {{.Message}}"
+  format: "{{.SHA}}: {{.Message}}"
   filters:
     exclude:
       - "^docs:"
