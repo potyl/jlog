@@ -14,4 +14,5 @@ defaults:
 
 jobs:
   checks:
+    name: Checks
     uses: ./.github/workflows/checks.yaml
