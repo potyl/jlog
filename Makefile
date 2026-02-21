@@ -76,7 +76,7 @@ build.all: linux darwin windows
 
 .PHONY: clean
 clean:
-	-rm -rf ${BUILD_DIR}
+	-rm -rf ${BUILD_DIR} ${NAME}
 
 .PHONY: linux
 linux: ${LINUX}
