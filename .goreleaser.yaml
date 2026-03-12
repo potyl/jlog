@@ -34,8 +34,7 @@ archives:
         formats:
           - zip
     files:
-      - LICENSE
-      - README.md
+      - none*
 
 checksum:
   name_template: checksums.txt
